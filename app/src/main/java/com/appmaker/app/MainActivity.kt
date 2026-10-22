@@ -12,8 +12,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.appmaker.app.databinding.ActivityMainrBinding // سيتم ربطه آلياً أو استخدام ViewBinding التقليدي
-// لضمان التوافق التام بدون أخطاء سندرج الربط البسيط والتصاميم البرمجية:
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
