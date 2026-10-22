@@ -3,19 +3,22 @@ package com.appmaker.app
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,11 +45,21 @@ class MainActivity : AppCompatActivity() {
 
     private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
+            val uri: Uri? = result.data?.data
             if (uri != null) {
-                val bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
-                currentAttachedBitmap = bitmap
-                Toast.makeText(this, "تم استيراد الصورة بنجاح", Toast.LENGTH_SHORT).show()
+                try {
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val source = ImageDecoder.createSource(this.contentResolver, uri)
+                        ImageDecoder.decodeBitmap(source)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
+                    }
+                    currentAttachedBitmap = bitmap
+                    Toast.makeText(this, "تم استيراد الصورة بنجاح", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this, "تعذر تحميل الصورة", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -111,8 +124,8 @@ class MainActivity : AppCompatActivity() {
             val note = notes[position]
             holder.titleView.text = if (note.title.isNotEmpty()) note.title else "بدون عنوان"
             holder.contentView.text = note.content
-            holder.titleView.setTextColor(android.graphics.Color.parseColor("#BB86FC"))
-            holder.contentView.setTextColor(android.graphics.Color.parseColor("#CCCCCC"))
+            holder.titleView.setTextColor(Color.parseColor("#BB86FC"))
+            holder.contentView.setTextColor(Color.parseColor("#CCCCCC"))
         }
 
         override fun getItemCount(): Int = notes.size
